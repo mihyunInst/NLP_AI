@@ -23,37 +23,35 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class DoctorController {
-	
-	@Autowired
-	private DoctorService doctorService;
+
+	private final DoctorService doctorService;
 
 	private final NLPModel nlpModel;
-    
-    @GetMapping
-    public String index() {
-        return "index";
-    }
-    
-    @GetMapping("/doctors")
-    @ResponseBody
-    public List<Doctor> getAllDoctors() {
-        return doctorService.getAllDoctors();
-    }
 
-    @PostMapping("/recommend")
-    @ResponseBody
-    public String getRecommendation(@RequestBody Map<String, Object> map) {
-    	
-    	log.info("입력된 증상 {}" , (String)map.get("symptom"));
-    	
-        Doctor recommendedDoctor = doctorService.recommendDoctor((String)map.get("symptom"), nlpModel);
-        
-        if (recommendedDoctor != null) {
-            return "추천 의사 이름 : " + recommendedDoctor.getDoctorName() 
-            	+ "\n전공명: " + recommendedDoctor.getMajorName() 
-            	+ "\n전화번호: " + recommendedDoctor.getDoctorTel();
-        } else {
-            return "추천의를 찾을 수 없네요..";
-        }
-    }
+	@GetMapping
+	public String index() {
+		return "index";
+	}
+
+	@GetMapping("/doctors")
+	@ResponseBody
+	public List<Doctor> getAllDoctors() {
+		return doctorService.getAllDoctors();
+	}
+
+	@PostMapping("/recommend")
+	@ResponseBody
+	public String getRecommendation(@RequestBody Map<String, Object> map) {
+
+		log.info("입력된 증상 {}", (String) map.get("symptom"));
+
+		Doctor recommendedDoctor = doctorService.recommendDoctor((String) map.get("symptom"), nlpModel);
+
+		if (recommendedDoctor != null) {
+			return "추천 의사 이름 : " + recommendedDoctor.getDoctorName() + "\n전공명: " + recommendedDoctor.getMajorName()
+					+ "\n전화번호: " + recommendedDoctor.getDoctorTel();
+		} else {
+			return "추천의를 찾을 수 없네요..";
+		}
+	}
 }
