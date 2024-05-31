@@ -103,22 +103,30 @@ public class NLPModel {
 	}
 
 	// 입력 문장 전처리 및 n-그램 생성 메서드
+	// n-그램(n-gram) : 연속된 n개의 아이템으로 이루어진 시퀀스
 	private List<String> preprocess(String symptom) {
 		log.info("전처리 시작...");
 		// 불필요한 공백 및 특수문자 제거
-		symptom = symptom.trim().replaceAll("[^가-힣a-zA-Z0-9\\s]", "");
-		String[] words = symptom.split("\\s+");
+		symptom = symptom.trim().replaceAll("[^가-힣a-zA-Z0-9\\s]", ""); // 한글, 영문자, 숫자, 공백을 제외한 모든 문자를 제거
+		String[] words = symptom.split("\\s+"); // 하나 이상의 공백 문자를 의미
 
 		// 불용어 필터링 및 n-그램 생성 (1-그램 및 2-그램)
 		List<String> ngrams = new ArrayList<>();
-		for (int i = 0; i < words.length; i++) {
-			if (!StopWords.isStopWord(words[i])) {
-				ngrams.add(words[i]); // 1-그램 추가
+		
+		for (int i = 0; i < words.length; i++) { // words 각 요소 순회
+			
+			if (!StopWords.isStopWord(words[i])) { // 불용어 필터링
+				
+				ngrams.add(words[i]); // 1-그램(단일 단어) 추가
+				
+				// 현재 단어가 배열의 마지막 단어가 아니고, 다음단어도 불용어가 아닐 때
 				if (i < words.length - 1 && !StopWords.isStopWord(words[i + 1])) {
 					ngrams.add(words[i] + " " + words[i + 1]); // 2-그램 추가
 				}
 			}
+			
 		}
+		
 		log.info("전처리 완료!");
 		return ngrams;
 	}
