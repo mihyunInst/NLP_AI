@@ -41,9 +41,12 @@ public class StopWords {
 
 
     public static boolean isStopWord(String word) {
-    	log.info("stopWords {}" , stopWords);
-    	log.info("word {}", word);
-    	log.info("stopWords.contains(word) {}", stopWords.contains(word));
+    	log.info("불용어 거르는 중... {}", word);
+    	
+    	if(stopWords.contains(word)) {
+    		log.info("걸러진 불용어 {}", word);
+    	}
+    	
         return stopWords.contains(word);
     }
 }
