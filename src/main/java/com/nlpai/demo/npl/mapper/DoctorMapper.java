@@ -11,12 +11,17 @@ import com.nlpai.demo.npl.model.dto.DoctorMajor;
 @Mapper
 public interface DoctorMapper {
 
-	 @Select("SELECT * FROM DOCTOR")
+	@Select("SELECT DOCTOR_NO, MAJOR_CODE, DOCTOR_NAME, DOCTOR_TEL, MAJOR_NAME " +
+            "FROM DOCTOR " +
+            "JOIN DOCTOR_MAJOR USING (MAJOR_CODE)")
 	 List<Doctor> findAllDoctors();
 
 	 @Select("SELECT * FROM DOCTOR_MAJOR")
 	 List<DoctorMajor> findAllDoctorMajors();
 
-	 @Select("SELECT * FROM DOCTOR WHERE MAJOR_CODE = #{majorCode}")
+	 @Select("SELECT DOCTOR_NO, MAJOR_CODE, DOCTOR_NAME, DOCTOR_TEL, MAJOR_NAME " +
+	            "FROM DOCTOR " +
+	            "JOIN DOCTOR_MAJOR USING (MAJOR_CODE) " +
+	            "WHERE MAJOR_CODE = #{majorCode}")
 	 List<Doctor> findDoctorsByMajorCode(Long majorCode);
 }

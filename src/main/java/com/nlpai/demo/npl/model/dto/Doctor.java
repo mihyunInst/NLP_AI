@@ -8,4 +8,7 @@ public class Doctor {
     private Long majorCode;
     private String doctorName;
     private String doctorTel;
+    
+    // 전공명 join
+    private String majorName;
 }

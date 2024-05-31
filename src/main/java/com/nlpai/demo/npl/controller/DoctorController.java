@@ -44,12 +44,14 @@ public class DoctorController {
     @ResponseBody
     public String getRecommendation(@RequestBody Map<String, Object> map) {
     	
-    	log.info("증상 {}" , (String)map.get("symptom"));
+    	log.info("입력된 증상 {}" , (String)map.get("symptom"));
     	
         Doctor recommendedDoctor = doctorService.recommendDoctor((String)map.get("symptom"), nlpModel);
         
         if (recommendedDoctor != null) {
-            return "추천 의사 : " + recommendedDoctor.getDoctorName() + ", 전공: " + recommendedDoctor.getMajorCode() + ", 전화번호: " + recommendedDoctor.getDoctorTel();
+            return "추천 의사 이름 : " + recommendedDoctor.getDoctorName() 
+            	+ "\n전공명: " + recommendedDoctor.getMajorName() 
+            	+ "\n전화번호: " + recommendedDoctor.getDoctorTel();
         } else {
             return "추천의를 찾을 수 없네요..";
         }
