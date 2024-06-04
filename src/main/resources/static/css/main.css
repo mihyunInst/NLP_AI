@@ -73,6 +73,29 @@ h1 {
     align-items: center;
     justify-content: center;
     text-align: center;
+    flex-direction: column;
+}
+
+
+#trainingSection {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+}
+
+#trainingSection.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+.recommendButton {
+    margin: 5px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 @media (max-width: 480px) {

@@ -40,7 +40,7 @@ public class StopWords {
 	}
 
 	public static boolean isStopWord(String word) {
-		log.info("불용어 거르는 중... {}", word);
+		log.info("불용어 거르는 중...");
 
 		if (stopWords.contains(word)) {
 			log.info("걸러진 불용어 {}", word);

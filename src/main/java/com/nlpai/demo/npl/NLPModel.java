@@ -1,7 +1,9 @@
 package com.nlpai.demo.npl;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import com.nlpai.demo.npl.model.dto.StopWords;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
@@ -95,9 +96,23 @@ public class NLPModel {
 		List<String> docWordsList = preprocess(symptom); // 입력된 증상을 단어로 분리
 		String[] docWords = docWordsList.toArray(new String[0]);
 		double[] outcomes = categorizer.categorize(docWords); // 분류 결과 얻기
-
-		log.info("단어 배열 {}", docWords);
+		
+		log.info("단어 배열 {}", (Object) docWords);
 		log.info("카테고리 일치 확률 {}", outcomes);
+		
+		// outcomes의 모든 확률이 동일한 경우 감지 (== AI가 정확한 판단을 하지 못함)
+	    boolean allEqual = true;
+	    for (int i = 1; i < outcomes.length; i++) {
+	        if (outcomes[i] != outcomes[0]) {
+	            allEqual = false;
+	            break;
+	        }
+	    }
+	    
+	    if (allEqual) {
+	        log.warn("모든 카테고리의 일치 확률이 동일합니다. 모델이 올바르게 분류하지 못했습니다.");
+	        return "nodata";
+	    }
 
 		return categorizer.getBestCategory(outcomes); // 가장 가능성이 높은 카테고리 반환
 	}
@@ -110,26 +125,52 @@ public class NLPModel {
 		symptom = symptom.trim().replaceAll("[^가-힣a-zA-Z0-9\\s]", ""); // 한글, 영문자, 숫자, 공백을 제외한 모든 문자를 제거
 		String[] words = symptom.split("\\s+"); // 하나 이상의 공백 문자를 의미
 
+		log.info("전처리 후 단어 배열: {}", (Object) words); // 전처리 후 단어 배열 로그 출력
+
 		// 불용어 필터링 및 n-그램 생성 (1-그램 및 2-그램)
 		List<String> ngrams = new ArrayList<>();
-		
+
 		for (int i = 0; i < words.length; i++) { // words 각 요소 순회
-			
+			log.info("현재 단어: {}", words[i]); // 현재 단어 로그 출력
+
 			if (!StopWords.isStopWord(words[i])) { // 불용어 필터링
-				
+
 				ngrams.add(words[i]); // 1-그램(단일 단어) 추가
-				
+
 				// 현재 단어가 배열의 마지막 단어가 아니고, 다음단어도 불용어가 아닐 때
 				if (i < words.length - 1 && !StopWords.isStopWord(words[i + 1])) {
 					ngrams.add(words[i] + " " + words[i + 1]); // 2-그램 추가
 				}
 			}
-			
+
 		}
-		
+
+		log.info("생성된 n-그램: {}", ngrams); // 생성된 n-그램 로그 출력
 		log.info("전처리 완료!");
 		return ngrams;
 	}
+
+	/**
+	 * 새로운 학습 데이터를 추가하고 모델을 재학습시키는 메서드
+	 * 
+	 * @param symptom
+	 * @param department
+	 * @throws Exception 
+	 */
+	public void addTrainingData(String symptom, String department) throws Exception {
+		// 파일에 새로운 학습 데이터를 추가하기 위해 FileWriter와 BufferedWriter를 사용
+		try (FileWriter fw = new FileWriter(trainingDataPath, true); // 파일을 append 모드로 열기
+				BufferedWriter bw = new BufferedWriter(fw)) { // 버퍼를 사용해 파일에 쓰기
+			
+			bw.newLine(); // 새로운 라인 추가
+			bw.write(symptom + "," + department); // 새로운 학습 데이터를 파일에 쓰기
+		}
+
+		// 새로운 데이터를 반영하여 모델을 재학습시키는 메서드 호출
+		initializeModel();
+
+	}
+
 }
 
 /*
